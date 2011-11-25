@@ -44,7 +44,7 @@ int fillMatrix(int n) {
 
 int initNodes (struct node* elems,struct node** index,int size,int source) {
        int iter=0;
-       float test[10]={-1,-1,-1,-1,0,0,-1,-1,-1,-1};
+       float test[10]={0,-1,-1,-1,-1,0,-1,-1,-1,-1};
        while(iter < size) {
                 *(index+iter)=(elems+iter);
                 (elems+iter)->distance=test[iter];
@@ -117,9 +117,9 @@ void decreaseKey(struct node *A,struct node **index,int size,int key,int pos) {
         buildMinHeap(index,size);
 }
 
-void relaxNodes(struct node *elems,struct node** index,int pos,int size) {
+void relaxNodes(struct node *elems,struct node** index,int pos,int verCount,int size) {
         int j=0;
-        while (j < size) {
+        while (j < verCount) {
                 if((adjMatrix[pos][j]!=-1)&&((elems+j)->distance==-1)) {
                         (elems+j)->distance=adjMatrix[pos][j];
                         (elems+j)->pred=pos;
@@ -149,7 +149,8 @@ void printHeap(struct node **A,int size) {
 }
 
 int main() {
-        int size=5;  
+        int size=5; 
+        int verCount=size; 
         elems=(struct node*)malloc(size*sizeof(struct node));
         heap=(struct node**)malloc(size*sizeof(struct node*));
         int iter=0;
@@ -163,10 +164,10 @@ int main() {
         while(size !=0) {
                 posMin=extractMin(heap,&size);
                 printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
-                relaxNodes(elems,heap,posMin,size);
+                relaxNodes(elems,heap,posMin,verCount,size);
         }
         printf("\n\n");
-        printPath(elems,2);
+        printPath(elems,4);
         printHeap(heap,size);
         printf("\n\n");
         free(heap);
