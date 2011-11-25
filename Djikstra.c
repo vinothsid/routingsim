@@ -102,7 +102,8 @@ int main() {
         printf("The minimum value from extractMin is : %f\n",(elems+posMin)->distance);
    }
    printf("\n\n");
-   
+   free(elems); 
+   free(heap);
    /*
    decreaseKey(elems,heap,size,1,1);
    i=0;
