@@ -30,7 +30,7 @@ int init( int n ) {
 }
 
 int fillMatrix(int n) {
-        float tmp[5][5] = {{0,3,-1,7,8}, {3,0,2,-1,2},{-1,2,0,1,-1} , {7,-1,1,0,4 },{8,2,-1,4,0} };
+        float tmp[5][5] = {{0,3,-1,7,8}, {3,0,2,-1,2},{-1,2,0,2,-1} , {7,-1,2,0,1 },{8,2,-1,1,0} };
         int i=0;
         int j=0;
         for(i=0;i<n;i++) {
@@ -79,7 +79,7 @@ void minHeapify(struct node **A,int i,int size) {
        } else {
                smallest=i;
        }
-    //((*(A+r))->distance < (*(A+smallest))->distance)
+       //((*(A+r))->distance < (*(A+smallest))->distance)
        if((r<size) && ((((*(A+r))->distance !=-1) && ((*(A+r))->distance < (*(A+smallest))->distance)) || ((*(A+smallest))->distance == -1)) ) {
                smallest=r;
        }
@@ -120,11 +120,11 @@ void decreaseKey(struct node *A,struct node **index,int size,int key,int pos) {
 void relaxNodes(struct node *elems,struct node** index,int pos,int verCount,int size) {
         int j=0;
         while (j < verCount) {
-                if((adjMatrix[pos][j]!=-1)&&((elems+j)->distance==-1)) {
-                        (elems+j)->distance=adjMatrix[pos][j];
+                if((adjMatrix[pos][j]!=0)&&(adjMatrix[pos][j]!=-1)&&((elems+j)->distance==-1)) {
+                        (elems+j)->distance=adjMatrix[pos][j]+(elems+pos)->distance;
                         (elems+j)->pred=pos;
                 } 
-                else if ((adjMatrix[pos][j]!=-1)&&((elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance)) {
+                else if ((adjMatrix[pos][j]!=0)&&(adjMatrix[pos][j]!=-1)&&((elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance)) {
                         (elems+j)->distance=(elems+pos)->distance+adjMatrix[pos][j];
                         (elems+j)->pred=pos;
                 }
@@ -167,20 +167,11 @@ int main() {
                 relaxNodes(elems,heap,posMin,verCount,size);
         }
         printf("\n\n");
-        printPath(elems,4);
+        printPath(elems,3);
         printHeap(heap,size);
         printf("\n\n");
         free(heap);
         free(elems);
         getchar();
      
-        /*
-        decreaseKey(elems,heap,size,1,1);
-        i=0;
-        printf("\n\n");
-        while(i<size) {
-                printf("The min element is : %f from heap pointers\n",(*(heap+i))->distance);
-                i++;
-        }
-        */
 }
