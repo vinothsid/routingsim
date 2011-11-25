@@ -33,12 +33,12 @@ void minHeapify(struct node **A,int i,int size) {
     int r=right(i);
     int smallest;
     struct node* temp;
-    if ((l<size)&&((*(A+l))->distance < (*(A+i))->distance)) {
+    if ((l<size)&& ((((*(A+l))->distance !=-1) && ((*(A+l))->distance < (*(A+i))->distance)) || ((*(A+i))->distance == -1))) {
         smallest=l;
     } else {
         smallest=i;
     }
-    if((r<size)&&((*(A+r))->distance < (*(A+smallest))->distance)) {
+    if((r<size) && ((*(A+r))->distance < (*(A+smallest))->distance)) {
         smallest=r;
     }
     if(smallest!=i) {
@@ -77,9 +77,9 @@ void decreaseKey(struct node *A,struct node **index,int size,int key,int pos) {
 
 int main() {
     int size=10;  
-    int test[10]={8,9,6,3,4,9,2,1,5,2};
-    elems=(struct node*)malloc(10*sizeof(struct node));
-    heap=(struct node**)malloc(10*sizeof(struct node*));
+    float test[10]={8,9,6,3,4,9,2,-1,5,2};
+    elems=(struct node*)malloc(size*sizeof(struct node));
+    heap=(struct node**)malloc(size*sizeof(struct node*));
     int iter=0;
     while(iter < 10) {
         *(heap+iter)=(elems+iter);
@@ -89,7 +89,7 @@ int main() {
     }
    int i=0;
    while(i<size) {
-        printf("The min element is : %f from heap pointers\n",(*(heap+i))->distance);
+        printf("The heap element at : %d is : %f from heap pointers\n",i,(*(heap+i))->distance);
         i++;
    }
 
