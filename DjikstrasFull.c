@@ -47,7 +47,11 @@ int initNodes (struct node* elems,struct node** index,int size,int source) {
        float test[10]={0,-1,-1,-1,-1,0,-1,-1,-1,-1};
        while(iter < size) {
                 *(index+iter)=(elems+iter);
-                (elems+iter)->distance=test[iter];
+		if(iter!=source) {
+                	(elems+iter)->distance=-1;
+		} else {
+			(elems+iter)->distance=0;
+		}
                 (elems+iter)->nodeNo=iter;
                 (elems+iter)->pred=-1;
                 iter++;
@@ -120,11 +124,11 @@ void decreaseKey(struct node *A,struct node **index,int size,int key,int pos) {
 void relaxNodes(struct node *elems,struct node** index,int pos,int verCount,int size) {
         int j=0;
         while (j < verCount) {
-                if((adjMatrix[pos][j]!=0)&&(adjMatrix[pos][j]!=-1)&&((elems+j)->distance==-1)) {
+                if( (adjMatrix[pos][j]!=-1) && ((elems+j)->distance==-1) ) {
                         (elems+j)->distance=adjMatrix[pos][j]+(elems+pos)->distance;
                         (elems+j)->pred=pos;
                 } 
-                else if ((adjMatrix[pos][j]!=0)&&(adjMatrix[pos][j]!=-1)&&((elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance)) {
+                else if ( (adjMatrix[pos][j]!=-1) && ((elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance) ) {
                         (elems+j)->distance=(elems+pos)->distance+adjMatrix[pos][j];
                         (elems+j)->pred=pos;
                 }
@@ -148,15 +152,20 @@ void printHeap(struct node **A,int size) {
    	}     
 }
 
-int main() {
+int main(int argc,char** argv) {
+	if(argc < 3) {
+		printf("usage ./exec [filename] [sourceNode] [destNode]\nspecify filename as X till read-graph is written\n");
+		exit(1);
+	}
         int size=5; 
+        int source=atoi(argv[2]);
+        int dest=atoi(argv[3]);
         int verCount=size; 
         elems=(struct node*)malloc(size*sizeof(struct node));
         heap=(struct node**)malloc(size*sizeof(struct node*));
-        int iter=0;
         init(size);
         fillMatrix(size);
-        initNodes(elems,heap,size,4);
+        initNodes(elems,heap,size,source);
         printHeap(heap,size);
         buildMinHeap(heap,size);
         int posMin;
@@ -167,7 +176,7 @@ int main() {
                 relaxNodes(elems,heap,posMin,verCount,size);
         }
         printf("\n\n");
-        printPath(elems,3);
+        printPath(elems,dest);
         printHeap(heap,size);
         printf("\n\n");
         free(heap);
