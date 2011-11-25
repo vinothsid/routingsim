@@ -99,18 +99,10 @@ int main() {
    printf("\n\n");
    while(size !=0) {
         posMin=extractMin(heap,&size);
-       // printf("The min element is : %f from heap pointers\n",(*(heap+i))->distance);
         printf("The minimum value from extractMin is : %f\n",(elems+posMin)->distance);
-        //i++;
    }
-   i=0;
    printf("\n\n");
-   /*
-   while(i<size) {
-        printf("The min element is : %f from heap pointers\n",(*(heap+i))->distance);
-        i++;
-   }
-   */
+   
    /*
    decreaseKey(elems,heap,size,1,1);
    i=0;
