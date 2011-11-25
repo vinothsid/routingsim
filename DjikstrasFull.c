@@ -49,6 +49,7 @@ int initNodes (struct node* elems,struct node** index,int size,int source) {
                 *(index+iter)=(elems+iter);
                 (elems+iter)->distance=test[iter];
                 (elems+iter)->nodeNo=iter;
+                (elems+iter)->pred=-1;
                 iter++;
        }      
 }
@@ -120,7 +121,7 @@ void relaxNodes(struct node *elems,struct node** index,int pos,int size) {
         int j=0;
         while (j < size) {
                 if((adjMatrix[pos][j]!=-1)&&((elems+j)->distance==-1)) {
-                        (elems+j)->distance==adjMatrix[pos][j];
+                        (elems+j)->distance=adjMatrix[pos][j];
                         (elems+j)->pred=pos;
                 } 
                 else if ((adjMatrix[pos][j]!=-1)&&((elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance)) {
@@ -133,12 +134,18 @@ void relaxNodes(struct node *elems,struct node** index,int pos,int size) {
 }
 //(elems+pos)->distance+adjMatrix[pos][j] < (elems+j)->distance
 
+void printPath(struct node* elems,int nodeNo) {
+	if((elems+nodeNo)->pred!=-1)
+		printPath(elems,(elems+nodeNo)->pred);
+		printf("---> %d",nodeNo);
+}
+
 void printHeap(struct node **A,int size) {
         int i=0;
         while(i<size) {
                 printf("The heap element at : %d is : %f from heap pointers\n",i,(*(heap+i))->distance);
                 i++;
-   }     
+   	}     
 }
 
 int main() {
@@ -158,6 +165,8 @@ int main() {
                 printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
                 relaxNodes(elems,heap,posMin,size);
         }
+        printf("\n\n");
+        printPath(elems,2);
         printHeap(heap,size);
         printf("\n\n");
         free(heap);
