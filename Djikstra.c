@@ -38,7 +38,8 @@ void minHeapify(struct node **A,int i,int size) {
     } else {
         smallest=i;
     }
-    if((r<size) && ((*(A+r))->distance < (*(A+smallest))->distance)) {
+    //if((r<size) && ((*(A+r))->distance < (*(A+smallest))->distance)) {
+    if((r<size) && ((((*(A+r))->distance !=-1) && ((*(A+r))->distance < (*(A+smallest))->distance)) || ((*(A+smallest))->distance == -1))) {
         smallest=r;
     }
     if(smallest!=i) {
