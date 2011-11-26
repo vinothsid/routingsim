@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
+int NODES=0;
 struct node {
     int nodeNo;
     float distance;
@@ -141,7 +143,7 @@ void relaxNodes(struct node *elems,struct node** index,int pos,int verCount,int 
 void printPath(struct node* elems,int nodeNo) {
 	if((elems+nodeNo)->pred!=-1)
 		printPath(elems,(elems+nodeNo)->pred);
-		printf("---> %d",nodeNo);
+		printf("---> %d",nodeNo+1);
 }
 
 void printHeap(struct node **A,int size) {
@@ -152,32 +154,85 @@ void printHeap(struct node **A,int size) {
    	}     
 }
 
+
+void readIt(char *file){
+	int first =0;
+	int dist =0;
+	int x,y;	
+	FILE *fp;
+	size_t lsize;
+	fp =  fopen(file,"r");
+	fseek (fp , 0 , SEEK_END);
+  	lsize = ftell (fp);
+  	rewind (fp);	
+	char *pt,*str;
+	int j=0;
+	str=(char *)malloc(sizeof(char)*lsize);
+	fread(str,lsize,1,fp);
+	pt=strtok(str,";, \n");
+	while(pt!=NULL){
+		dist++;
+		if(first==0){
+			first=1;
+			NODES = atoi(pt);
+			printf("The number of nodes are %d",NODES);
+			init(NODES);		
+			dist=0;		
+		}
+		if(dist==1){		
+			x=atoi(pt);
+			printf("Argument %d %d\n",j+1,atoi(pt));	
+		}
+		if(dist==2){
+			y=atoi(pt);
+			printf("Argument %d %d\n",j+1,atoi(pt));			
+		}
+		if(dist==3){
+			printf("Argument %d %f\n",j+1,atof(pt));		
+			adjMatrix[x-1][y-1]=atof(pt);
+			
+			adjMatrix[y-1][x-1]=atof(pt);
+				
+			dist=0;		
+		}
+
+		//printf("Argument %d %d\n",j+1,atoi(pt));
+		pt=strtok(NULL,";, \n");
+		j++;
+	}
+
+	fclose(fp);
+	
+}
+
+
 int main(int argc,char** argv) {
 	if(argc < 3) {
 		printf("usage ./exec [filename] [sourceNode] [destNode]\nspecify filename as X till read-graph is written\n");
 		exit(1);
 	}
-        int size=5; 
-        int source=atoi(argv[2]);
-        int dest=atoi(argv[3]);
-        int verCount=size; 
-        elems=(struct node*)malloc(size*sizeof(struct node));
-        heap=(struct node**)malloc(size*sizeof(struct node*));
-        init(size);
-        fillMatrix(size);
-        initNodes(elems,heap,size,source);
-        printHeap(heap,size);
-        buildMinHeap(heap,size);
+        //int size=5; 
+        int source=atoi(argv[2])-1;
+        int dest=atoi(argv[3])-1;
+	readIt(argv[1]);        
+	int verCount=NODES; 
+        elems=(struct node*)malloc(NODES*sizeof(struct node));
+        heap=(struct node**)malloc(NODES*sizeof(struct node*));
+        
+        //fillMatrix(size);
+        initNodes(elems,heap,NODES,source);
+        printHeap(heap,NODES);
+        buildMinHeap(heap,NODES);
         int posMin;
         printf("\n\n");
-        while(size !=0) {
-                posMin=extractMin(heap,&size);
+        while(NODES !=0) {
+                posMin=extractMin(heap,&NODES);
                 printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
-                relaxNodes(elems,heap,posMin,verCount,size);
+                relaxNodes(elems,heap,posMin,verCount,NODES);
         }
         printf("\n\n");
         printPath(elems,dest);
-        printHeap(heap,size);
+        printHeap(heap,NODES);
         printf("\n\n");
         free(heap);
         free(elems);
