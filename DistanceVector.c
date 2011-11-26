@@ -166,13 +166,13 @@ int findNextHop(int fromVertex,int toVertex) {
 	printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex+1 , toVertex+1 , nextHop+1 );
 	return nextHop;
 }
-void readIt(){
+void readIt(char *file){
 	int first =0;
 	int dist =0;
 	int x,y;	
 	FILE *fp;
 	size_t lsize;
-	fp =  fopen("newTable","r");
+	fp =  fopen(file,"r");
 	fseek (fp , 0 , SEEK_END);
   	lsize = ftell (fp);
   	rewind (fp);	
@@ -217,8 +217,14 @@ void readIt(){
 }
 
 int main(int argc, char *argv[]) {
+	if(argc !=2){
+	printf("\n\nPlease enter the command as\n");
+	printf("\n\n./<executable> <graph file name> \n");
+	exit(0);	
+	}	
+	printf("The file name is %s",*(argv+1));
+	readIt(*(argv+1));
 
-	readIt();
 	//fillMatrix(5);
 
 	initPred(NODES);
