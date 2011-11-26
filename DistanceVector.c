@@ -7,7 +7,8 @@ int *flag;
 int NODES =0;
 int **forwTable;
 float **distVector;
-
+int convergence_count=0;
+int node1,node2;
 int init( int n  ) {
 	adjMatrix = (float **)malloc(sizeof(float *) * n );
 	distVector = (float **)malloc(sizeof(float *) * n );
@@ -95,6 +96,7 @@ int computeRouteDV ( int n ) {
 			if(flag[i]==1) {
 				foundFlag = 1;
 				fromVertex=i;
+				convergence_count++;
 				printf("Going to processing node %d \n",fromVertex);
 				break;
 			}
@@ -120,7 +122,7 @@ int printDistVector(int n) {
 	printf("Distance Vector:\n");
 	for(i=0;i<n;i++) {
 		for(j=0;j<n;j++) {
-			printf(" %f ",distVector[i][j] );
+			printf(" %6.2f ",distVector[i][j] );
 		}
 		printf("\n");
 	}
@@ -166,6 +168,19 @@ int findNextHop(int fromVertex,int toVertex) {
 	printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex+1 , toVertex+1 , nextHop+1 );
 	return nextHop;
 }
+int printRoutingTable(int k,int n) {
+	int i;
+	printf("\n*********************************");
+	printf("\n ROUTING TABLE FOR NODE %d", k+1);
+	printf("\n*********************************");
+	printf("\nNext Hop \t Cost");
+        
+	for(i=0;i<n;i++) {
+		
+		printf("\n%d\t\t%6.2f" , forwTable[k][i]+1 , distVector[k][i]);
+        }
+  return 1;
+}
 void readIt(char *file){
 	int first =0;
 	int dist =0;
@@ -186,20 +201,20 @@ void readIt(char *file){
 		if(first==0){
 			first=1;
 			NODES = atoi(pt);
-			printf("The number of nodes are %d",NODES);
+		//	printf("The number of nodes are %d",NODES);
 			init(NODES);		
 			dist=0;		
 		}
 		if(dist==1){		
 			x=atoi(pt);
-			printf("Argument %d %d\n",j+1,atoi(pt));	
+		//	printf("Argument %d %d\n",j+1,atoi(pt));	
 		}
 		if(dist==2){
 			y=atoi(pt);
-			printf("Argument %d %d\n",j+1,atoi(pt));			
+		//	printf("Argument %d %d\n",j+1,atoi(pt));			
 		}
 		if(dist==3){
-			printf("Argument %d %f\n",j+1,atof(pt));		
+		//	printf("Argument %d %f\n",j+1,atof(pt));		
 			adjMatrix[x-1][y-1]=atof(pt);
 			distVector[x-1][y-1]=adjMatrix[x-1][y-1];
 			adjMatrix[y-1][x-1]=atof(pt);
@@ -217,13 +232,14 @@ void readIt(char *file){
 }
 
 int main(int argc, char *argv[]) {
-	if(argc !=2){
+ 
+	if(argc !=5){
 	printf("\n\nPlease enter the command as\n");
-	printf("\n\n./<executable> <graph file name> \n");
+	printf("\n\n./<executable> <initial node> <file name> <node 1> <node 2> \n");
 	exit(0);	
 	}	
-	printf("The file name is %s",*(argv+1));
-	readIt(*(argv+1));
+	printf("The file name is %s",*(argv+2));
+	readIt(*(argv+2));
 
 	//fillMatrix(5);
 
@@ -231,14 +247,21 @@ int main(int argc, char *argv[]) {
 	printForwTable(NODES);
 	printDistVector(NODES);
 	
-	flag[0] = 1;
+	flag[atoi(*(argv+1))-1] = 1;
 	computeRouteDV(NODES);
 	finish(NODES);
 	printDistVector(NODES);
-
+	node1=atoi(*(argv+3))-1;
+	node2=atoi(*(argv+4))-1;
 	printForwTable(NODES);
-	findNextHop(0,1);
-	findNextHop(0,3);
+	printRoutingTable(node1,NODES);
+	printRoutingTable(node2,NODES);
+	printf("\n");
+	printf("Least Cost Distance from Node %d to Node %d is %6.2f" , node1+1 , node2+1, distVector[node1][node2]);
+	printf("\nThe number of iterations taken to converge = %d\n" , convergence_count);
 
-	findNextHop(1,3);
+//	findNextHop(0,1);
+//	findNextHop(0,3);
+
+//	findNextHop(1,3);
 }
