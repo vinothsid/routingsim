@@ -1,8 +1,10 @@
 #include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
 
 float **adjMatrix;
 int *flag;
-
+int NODES =0;
 int **forwTable;
 float **distVector;
 
@@ -31,6 +33,24 @@ int init( int n  ) {
 	return 1;	
 
 }
+
+int finish( int n  ) {
+	int i=0;
+	int j=0;
+	for (i=0;i<n;i++) {
+		for(j=0;j<n;j++) {
+			if(i==j){
+				
+				distVector[i][j] = 0;
+				forwTable[i][j] = -1;
+			}		
+		}
+	}
+	
+	return 1;	
+
+}
+
 
 int fillMatrix(int n) {
 	float tmp[5][5] = {{0,3,-1,7,8}, {3,0,2,-1,2},{-1,2,0,1,-1} , {7,-1,1,0,4 },{8,2,-1,4,0} };
@@ -112,7 +132,7 @@ int printForwTable(int n) {
         int i=0,j=0;
         for(i=0;i<n;i++) {
                 for(j=0;j<n;j++) {
-                        printf(" %d ",forwTable[i][j] );
+                        printf(" %d ",forwTable[i][j]+1 );
                 }
                 printf("\n");
         }
@@ -143,20 +163,74 @@ int findNextHop(int fromVertex,int toVertex) {
 	}
 */	
 	nextHop = forwTable[fromVertex][toVertex];
-	printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex , toVertex , nextHop );
+	printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex+1 , toVertex+1 , nextHop+1 );
 	return nextHop;
 }
+void readIt(){
+	int first =0;
+	int dist =0;
+	int x,y;	
+	FILE *fp;
+	size_t lsize;
+	fp =  fopen("newTable","r");
+	fseek (fp , 0 , SEEK_END);
+  	lsize = ftell (fp);
+  	rewind (fp);	
+	char *pt,*str;
+	int j=0;
+	str=(char *)malloc(sizeof(char)*lsize);
+	fread(str,lsize,1,fp);
+	pt=strtok(str,";, \n");
+	while(pt!=NULL){
+		dist++;
+		if(first==0){
+			first=1;
+			NODES = atoi(pt);
+			printf("The number of nodes are %d",NODES);
+			init(NODES);		
+			dist=0;		
+		}
+		if(dist==1){		
+			x=atoi(pt);
+			printf("Argument %d %d\n",j+1,atoi(pt));	
+		}
+		if(dist==2){
+			y=atoi(pt);
+			printf("Argument %d %d\n",j+1,atoi(pt));			
+		}
+		if(dist==3){
+			printf("Argument %d %f\n",j+1,atof(pt));		
+			adjMatrix[x-1][y-1]=atof(pt);
+			distVector[x-1][y-1]=adjMatrix[x-1][y-1];
+			adjMatrix[y-1][x-1]=atof(pt);
+			distVector[y-1][x-1]=adjMatrix[y-1][x-1];	
+			dist=0;		
+		}
+
+		//printf("Argument %d %d\n",j+1,atoi(pt));
+		pt=strtok(NULL,";, \n");
+		j++;
+	}
+
+	fclose(fp);
+	
+}
+
 int main(int argc, char *argv[]) {
 
-	init(5);
-	fillMatrix(5);
+	readIt();
+	//fillMatrix(5);
 
-	initPred(5);
+	initPred(NODES);
+	printForwTable(NODES);
+	printDistVector(NODES);
+	
 	flag[0] = 1;
-	computeRouteDV(5);
-	printDistVector(5);
+	computeRouteDV(NODES);
+	finish(NODES);
+	printDistVector(NODES);
 
-	printForwTable(5);
+	printForwTable(NODES);
 	findNextHop(0,1);
 	findNextHop(0,3);
 
