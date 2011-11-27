@@ -8,12 +8,14 @@ struct node {
     int nodeNo;
     float distance;
     int pred;
+    int nextHop;
 } *elems;
 
 float **adjMatrix;
 
 struct node** indexer;
 struct node** heap;
+int source , dest;
 
 int init( int n ) {
         adjMatrix = (float **)malloc(sizeof(float *) * n );
@@ -56,6 +58,7 @@ int initNodes (struct node* elems,struct node** index,int size,int source) {
 		}
                 (elems+iter)->nodeNo=iter;
                 (elems+iter)->pred=-1;
+		(elems+iter)->nextHop=source;
                 iter++;
        }      
 }
@@ -153,7 +156,16 @@ void printHeap(struct node **A,int size) {
                 i++;
    	}     
 }
+int printpath1(struct node* elems,int nodeNo) {
+	  if((elems+nodeNo)->pred == -1) return -1;
+	while((elems+nodeNo)->pred!=source) {
+	   
+	  	
+            nodeNo=(elems+nodeNo)->pred;
+	}
+        return (elems+nodeNo)->nodeNo;
 
+}
 
 void readIt(char *file){
 	int first =0;
@@ -175,20 +187,20 @@ void readIt(char *file){
 		if(first==0){
 			first=1;
 			NODES = atoi(pt);
-			printf("The number of nodes are %d",NODES);
+		//	printf("The number of nodes are %d",NODES);
 			init(NODES);		
 			dist=0;		
 		}
 		if(dist==1){		
 			x=atoi(pt);
-			printf("Argument %d %d\n",j+1,atoi(pt));	
+		//	printf("Argument %d %d\n",j+1,atoi(pt));	
 		}
 		if(dist==2){
 			y=atoi(pt);
-			printf("Argument %d %d\n",j+1,atoi(pt));			
+		//	printf("Argument %d %d\n",j+1,atoi(pt));			
 		}
 		if(dist==3){
-			printf("Argument %d %f\n",j+1,atof(pt));		
+		//	printf("Argument %d %f\n",j+1,atof(pt));		
 			adjMatrix[x-1][y-1]=atof(pt);
 			
 			adjMatrix[y-1][x-1]=atof(pt);
@@ -212,10 +224,11 @@ int main(int argc,char** argv) {
 		exit(1);
 	}
         //int size=5; 
-        int source=atoi(argv[2])-1;
-        int dest=atoi(argv[3])-1;
+         source=atoi(argv[2])-1;
+         dest=atoi(argv[3])-1;
 	readIt(argv[1]);        
 	int verCount=NODES; 
+	printf("%d",verCount);
         elems=(struct node*)malloc(NODES*sizeof(struct node));
         heap=(struct node**)malloc(NODES*sizeof(struct node*));
         
@@ -230,9 +243,18 @@ int main(int argc,char** argv) {
                 printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
                 relaxNodes(elems,heap,posMin,verCount,NODES);
         }
+	int j=0;
+	printf("Destination \t Cost \t Next Hop");
+	for(j=0;j<verCount;j++) {
+           printf("\n %d \t\t %6.2f \t %d" , j+1 , (elems+j)->distance, printpath1(elems,j)+1);
+	   
+         }
+        
+        
         printf("\n\n");
         printPath(elems,dest);
         printHeap(heap,NODES);
+	
         printf("\n\n");
         free(heap);
         free(elems);
