@@ -78,7 +78,7 @@ int updateVector(int fromVertex , int toVertex , int n) {
 		if( distVector[fromVertex][i] != -1) {
 			if( distVector[toVertex][i] == -1 ||  (distVector[fromVertex][i]+d ) < distVector[toVertex][i] ) {
 				distVector[toVertex][i] = distVector[fromVertex][i] + d;
-				forwTable[toVertex][i] = fromVertex;
+				forwTable[toVertex][i] = forwTable[toVertex][fromVertex];
 				flag[toVertex] = 1; // To say that it has updated its distance vector and need to sent to neighbours again 
 			}
 		}

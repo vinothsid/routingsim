@@ -41,8 +41,12 @@ int printVector(float *f,int n) {
 int printForwTable(int n) {
 	int i=0;
 	printf("Printing forward table\n");
+
 	for(i=0;i<n;i++) {
-		printf(" %d ",forwTable[i] + 1 );
+		if(i!=source)
+			printf(" %d ",forwTable[i] + 1 );
+		else
+			printf(" %d " , forwTable[i]);
 	}
 	printf("\n");
 	return 1;
@@ -69,7 +73,12 @@ void *server() {
 	while(1) {
 		tmpDV = (float *)malloc(sizeof(float) * numNodes);
 		src= udpRecv(tmpDV);
-		printVector(tmpDV,numNodes);
+//		printVector(tmpDV,numNodes);
+		computeRouteDV(src,numNodes,tmpDV);
+		printf("Distance Vector :\n");
+		printVector(distVector,numNodes);
+
+		
 		printForwTable(numNodes);
 	}
 }
@@ -135,6 +144,7 @@ int udpRecv(float *f)
    // float *tmpDv=(float *)malloc(sizeof(float) * numNodes);
     int src;
     src = decode( buf ,f,numNodes );
+    printf("Source received is : %d \n",src);
     //printVector(tmpDv,numNodes); 
     close(sockfd);
 
@@ -187,8 +197,9 @@ void client(char *addr)
     }
 
     freeaddrinfo(servinfo);
-    free(str);
     printf("talker: sent %d bytes to %s\n", numbytes, addr);
+    printf("talker: Data %s\n",str);
+    free(str);
     close(sockfd);
 
 }
@@ -254,7 +265,7 @@ int computeRouteDV ( int src,int n,float *tmpDV ) {
 	float d=0;
         int foundFlag=0;
 	d=distVector[src];
-        while(1) {
+	
 /*
                 for(i=0;i<n;i++) {
                         if(flag[i]==1) {
@@ -279,11 +290,14 @@ int computeRouteDV ( int src,int n,float *tmpDV ) {
 	/*	
                 }
 */
+		printf("Printing received vector:\n");
+		printVector(tmpDV,n);
 		pthread_mutex_lock(&dvMutex);
 		for(i=0; i<n; i++ ) { 
-				if( distVector[i] == -1 ||  (tmpDV[i]+d ) < distVector[i] ) {
+				if(tmpDV[i]!=-1 && ( distVector[i] == -1 ||  (tmpDV[i]+d ) < distVector[i]) ) {
 					distVector[i] = tmpDV[i] + d;
-					forwTable[i] = src;
+					forwTable[i] = forwTable[src];
+					printf("computeRoutDV \n");
 					//flag[toVertex] = 1; // To say that it has updated its distance vector and need to sent to neighbours again 
 				}
 		}
@@ -291,7 +305,6 @@ int computeRouteDV ( int src,int n,float *tmpDV ) {
 
 //                flag[fromVertex] = 0;
   //              foundFlag=0;
-        }
         return 1;
 }
 
@@ -305,17 +318,31 @@ int init(int n) {
 		forwTable[i] = -1;
 	}
 
+
+}
+
+
+void initForwTable(int n) {
+	int i=0;
+	for(i=0;i<n;i++) {
+		if(distVector[i]!=-1) {
+			forwTable[i] = i;
+		}
+	}
+
+	forwTable[source]=0;
+	
 }
 
 
 void main(int argc, char** argv){
 	pthread_t senderThread, receiverThread;
-	char *ip = "192.168.15.6";
+	char *ip = "192.168.15.7 192.168.15.11 192.168.15.21";
 	int iret1,iret2;
 	//printf("Hi the IP to contact is %s",argv[1]);
 
-        float tmp[4] = {4.5, 5.9, 6.3, 7.2  };
-
+        float tmp[4] = {0,10,30,2 };
+	source = 0;
 	//str = argv[1];
 	numNodes=4;
 	init(numNodes);
@@ -324,6 +351,7 @@ void main(int argc, char** argv){
                 distVector[i] = tmp[i];
         }
 
+	initForwTable(numNodes);
 	iret1 = pthread_create( &senderThread, NULL, clientFunc,(void *) ip);
         iret2 = pthread_create( &receiverThread, NULL, server, NULL);
 
