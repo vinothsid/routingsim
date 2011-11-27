@@ -73,7 +73,7 @@ int updateVector(int fromVertex , int toVertex , int n) {
 	d= distVector[toVertex][fromVertex];
 	int i=0;
 
-	printf("Node  %d received distance vector from node %d \n" , toVertex , fromVertex);
+	//printf("Node  %d received distance vector from node %d \n" , toVertex , fromVertex);
 	for(i=0; i<n; i++ ) {
 		if( distVector[fromVertex][i] != -1) {
 			if( distVector[toVertex][i] == -1 ||  (distVector[fromVertex][i]+d ) < distVector[toVertex][i] ) {
@@ -97,7 +97,7 @@ int computeRouteDV ( int n ) {
 				foundFlag = 1;
 				fromVertex=i;
 				convergence_count++;
-				printf("Going to processing node %d \n",fromVertex);
+				//printf("Going to processing node %d \n",fromVertex);
 				break;
 			}
 		}
@@ -165,7 +165,7 @@ int findNextHop(int fromVertex,int toVertex) {
 	}
 */	
 	nextHop = forwTable[fromVertex][toVertex];
-	printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex+1 , toVertex+1 , nextHop+1 );
+	//printf("NextHop for vertex %d to reach %d is  %d \n" , fromVertex+1 , toVertex+1 , nextHop+1 );
 	return nextHop;
 }
 int printRoutingTable(int k,int n) {
@@ -173,11 +173,11 @@ int printRoutingTable(int k,int n) {
 	printf("\n*********************************");
 	printf("\n ROUTING TABLE FOR NODE %d", k+1);
 	printf("\n*********************************");
-	printf("\nNext Hop \t Cost");
+	printf("\nDest NextHop \t Cost");
         
 	for(i=0;i<n;i++) {
 		
-		printf("\n%d\t\t%6.2f" , forwTable[k][i]+1 , distVector[k][i]);
+		printf("\n%2d %4d\t\t%6.2f" ,i+1, forwTable[k][i]+1 , distVector[k][i]);
         }
   return 1;
 }
@@ -244,21 +244,21 @@ int main(int argc, char *argv[]) {
 	//fillMatrix(5);
 
 	initPred(NODES);
-	printForwTable(NODES);
-	printDistVector(NODES);
+//	printForwTable(NODES);
+//	printDistVector(NODES);
 	
 	flag[atoi(*(argv+1))-1] = 1;
 	computeRouteDV(NODES);
 	finish(NODES);
-	printDistVector(NODES);
+//	printDistVector(NODES);
 	node1=atoi(*(argv+3))-1;
 	node2=atoi(*(argv+4))-1;
-	printForwTable(NODES);
+//	printForwTable(NODES);
 	printRoutingTable(node1,NODES);
 	printRoutingTable(node2,NODES);
 	printf("\n");
 	printf("Least Cost Distance from Node %d to Node %d is %6.2f" , node1+1 , node2+1, distVector[node1][node2]);
-	printf("\nThe number of iterations taken to converge = %d\n" , convergence_count);
+	printf("\nNum nodes : %d ; Initial Node : %d ;The number of iterations taken to converge = %d\n" ,NODES,node1+1, convergence_count);
 
 //	findNextHop(0,1);
 //	findNextHop(0,3);

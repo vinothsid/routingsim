@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <sys/time.h>
 
 int NODES=0;
 struct node {
@@ -167,6 +168,7 @@ int printpath1(struct node* elems,int nodeNo) {
 
 }
 
+
 void readIt(char *file){
 	int first =0;
 	int dist =0;
@@ -218,6 +220,27 @@ void readIt(char *file){
 }
 
 
+int printForwTable(int src,int n) {
+        int j=0;
+	source = src;
+	printf("\nForwarding table of node : %d \n" , src+1);
+        printf("Destination \t Cost \t Next Hop");
+        for(j=0;j<n;j++) {
+           printf("\n %d \t\t %6.2f \t %d" , j+1 , (elems+j)->distance, printpath1(elems,j)+1);
+
+         }
+
+}
+
+int timeval_subtract(struct timeval *result, struct timeval *t1, struct timeval *t2)
+{
+    long int diff = (t2->tv_usec + 1000000 * t2->tv_sec) - (t1->tv_usec + 1000000 * t1->tv_sec);
+    result->tv_sec = diff / 1000000;
+    result->tv_usec = diff % 1000000;
+
+    return (diff<0);
+}
+
 int main(int argc,char** argv) {
 	if(argc < 3) {
 		printf("usage ./exec [filename] [sourceNode] [destNode]\nspecify filename as X till read-graph is written\n");
@@ -226,7 +249,10 @@ int main(int argc,char** argv) {
         //int size=5; 
          source=atoi(argv[2])-1;
          dest=atoi(argv[3])-1;
-	readIt(argv[1]);        
+	readIt(argv[1]);       
+
+	struct timeval sTime,eTime,elapsed;
+	gettimeofday(&sTime,NULL); 
 	int verCount=NODES; 
 	printf("%d",verCount);
         elems=(struct node*)malloc(NODES*sizeof(struct node));
@@ -234,30 +260,37 @@ int main(int argc,char** argv) {
         
         //fillMatrix(size);
         initNodes(elems,heap,NODES,source);
-        printHeap(heap,NODES);
+        //printHeap(heap,NODES);
         buildMinHeap(heap,NODES);
         int posMin;
         printf("\n\n");
         while(NODES !=0) {
                 posMin=extractMin(heap,&NODES);
-                printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
+                //printf("The minimum value from extractMin is : %f at : %d position in the elems array\n",(elems+posMin)->distance,posMin);
                 relaxNodes(elems,heap,posMin,verCount,NODES);
         }
-	int j=0;
+/*	int j=0;
 	printf("Destination \t Cost \t Next Hop");
 	for(j=0;j<verCount;j++) {
            printf("\n %d \t\t %6.2f \t %d" , j+1 , (elems+j)->distance, printpath1(elems,j)+1);
 	   
          }
-        
-        
+  */
         printf("\n\n");
         printPath(elems,dest);
+	printf("\n");
+	printf("Cost of least-cost path between %d and %d is %f \n" , source+1 , dest+1 ,(elems+dest)->distance );
+	
+	printForwTable(source,verCount);      
+//	printForwTable(dest,verCount);       
         printHeap(heap,NODES);
 	
+	gettimeofday(&eTime,NULL);
+	timeval_subtract(&elapsed,&sTime,&eTime);
+	printf("\nSource Node : %d Time taken :  %ld.%06ld microseconds \n",source+1 , elapsed.tv_usec ); 
         printf("\n\n");
         free(heap);
         free(elems);
-        getchar();
+        //getchar();
      
 }
