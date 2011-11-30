@@ -437,7 +437,12 @@ void main(int argc, char** argv){
 	
         for(i=0;i<numNodes;i++) {
                 distVector[i] = tempDistVector[source][i];
+		if (source==i) {
+			distVector[i] = 0;
+		}
         }
+
+	printVector(distVector,numNodes);
 
 	initForwTable(numNodes);
 	iret1 = pthread_create( &senderThread, NULL, clientFunc,(void *) ip);
