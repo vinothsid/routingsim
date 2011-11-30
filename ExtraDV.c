@@ -16,7 +16,7 @@
 
 #define MAXBUFLEN 100
 
-float *distVector;
+float *distVector,**tempDistVector,**adjMatrix;
 int source,numNodes;
 int *forwTable;
 pthread_mutex_t dvMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -51,6 +51,57 @@ int printForwTable(int n) {
 	printf("\n");
 	return 1;
 }
+
+void readIt(char *file){
+        int first =0;
+        int dist =0;
+        int x,y;
+        FILE *fp;
+        size_t lsize;
+        fp =  fopen(file,"r");
+        fseek (fp , 0 , SEEK_END);
+        lsize = ftell (fp);
+        rewind (fp);
+        char *pt,*str;
+        int j=0;
+        str=(char *)malloc(sizeof(char)*lsize);
+        fread(str,lsize,1,fp);
+        pt=strtok(str,";, \n");
+        while(pt!=NULL){
+                dist++;
+                if(first==0){
+                        first=1;
+                        numNodes = atoi(pt);
+                //      printf("The number of nodes are %d",NODES);
+                        init(numNodes);
+                        dist=0;
+                }
+                if(dist==1){
+                        x=atoi(pt);
+                //      printf("Argument %d %d\n",j+1,atoi(pt));        
+                }
+                if(dist==2){
+                        y=atoi(pt);
+                //      printf("Argument %d %d\n",j+1,atoi(pt));                        
+                }
+                if(dist==3){
+                //      printf("Argument %d %f\n",j+1,atof(pt));                
+                        adjMatrix[x-1][y-1]=atof(pt);
+                        tempDistVector[x-1][y-1]=adjMatrix[x-1][y-1];
+                        adjMatrix[y-1][x-1]=atof(pt);
+                        tempDistVector[y-1][x-1]=adjMatrix[y-1][x-1];
+                        dist=0;
+                }
+
+                //printf("Argument %d %d\n",j+1,atoi(pt));
+                pt=strtok(NULL,";, \n");
+                j++;
+        }
+
+        fclose(fp);
+
+}
+
 char *encode (int src,int n,float *dv) {
 	int i=0;
 	char *str= (char *)malloc(100) ;
@@ -319,6 +370,24 @@ int init(int n) {
 	}
 
 
+        adjMatrix = (float **)malloc(sizeof(float *) * n );
+        tempDistVector = (float **)malloc(sizeof(float *) * n );
+
+
+ //       int i=0;
+        for(i=0;i<n;i++) {
+                *(adjMatrix +i ) = (float *)malloc(sizeof(float ) * n);
+                *(tempDistVector+i) = (float *)malloc(sizeof(float ) * n);
+        }
+
+        int j=0;
+        for (i=0;i<n;i++) {
+                for(j=0;j<n;j++) {
+                        adjMatrix[i][j] = -1;
+                        tempDistVector[i][j] = -1;
+                }
+        }
+
 }
 
 
@@ -337,18 +406,37 @@ void initForwTable(int n) {
 
 void main(int argc, char** argv){
 	pthread_t senderThread, receiverThread;
-	char *ip = "192.168.15.7 192.168.15.11 192.168.15.21";
+	char ip[10][20];
+	//char *ip = "192.168.15.7 192.168.15.11 192.168.15.21";
 	int iret1,iret2;
 	//printf("Hi the IP to contact is %s",argv[1]);
 
-        float tmp[4] = {0,10,30,2 };
-	source = 0;
+//        float tmp[4] = {0,10,30,2 };
+//	source = 0;
 	//str = argv[1];
-	numNodes=4;
-	init(numNodes);
+//	numNodes=4;
+//	init(numNodes);
+//	numNodes = atoi(argv[1]);
+	source  = atoi(argv[1]) -1 ;
+
+	char *fileName = argv[2];
+
+	readIt(fileName);
+	printf("Number of nodes : %d . Source node is : %d \n",numNodes,source);
+
+	//Read adjacent node's ip addresses
         int i=0;
+	for(i=0;i<numNodes-1;i++) {
+		strcpy(ip[i],argv[3+i]);
+	}
+
+	printf("Adjacent ip addresses : ");
+	for(i=0;i<numNodes-1;i++) {
+		printf(" %s" , ip[i]);
+	}
+	
         for(i=0;i<numNodes;i++) {
-                distVector[i] = tmp[i];
+                distVector[i] = tempDistVector[source][i];
         }
 
 	initForwTable(numNodes);
