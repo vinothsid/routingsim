@@ -8,12 +8,14 @@ int NODES =0;
 int **forwTable;
 float **distVector;
 int convergence_count=0;
+int *conCount;
 int node1,node2;
 int init( int n  ) {
 	adjMatrix = (float **)malloc(sizeof(float *) * n );
 	distVector = (float **)malloc(sizeof(float *) * n );
 	forwTable = (int **)malloc(sizeof(int *) * n );
 	flag = (int *)malloc(sizeof(int) * n);
+	conCount=(int *)malloc(sizeof(int) * n);
 	int i=0;
 	for(i=0;i<n;i++) {
 		*(adjMatrix +i ) = (float *)malloc(sizeof(float ) * n);
@@ -29,10 +31,23 @@ int init( int n  ) {
 			forwTable[i][j] = -1;
 		}
 		flag[i]=0;	
+		conCount[i]=0;
 	}
 	
 	return 1;	
 
+}
+
+int Max(int *arr,int size) {
+	int temp=-1;
+	int i=0;
+	while (i < size) {
+		if(arr[i] > temp) {
+			temp=arr[i];
+		}
+		i++;
+	}
+	return temp;
 }
 
 int finish( int n  ) {
@@ -97,6 +112,7 @@ int computeRouteDV ( int n ) {
 				foundFlag = 1;
 				fromVertex=i;
 				convergence_count++;
+				conCount[i]++;
 				//printf("Going to processing node %d \n",fromVertex);
 				break;
 			}
@@ -248,7 +264,8 @@ int main(int argc, char *argv[]) {
 //	printDistVector(NODES);
 	
 	flag[atoi(*(argv+1))-1] = 1;
-	computeRouteDV(NODES);
+	//finish(NODES);
+        computeRouteDV(NODES);
 	finish(NODES);
 //	printDistVector(NODES);
 	node1=atoi(*(argv+3))-1;
@@ -257,6 +274,7 @@ int main(int argc, char *argv[]) {
 	printRoutingTable(node1,NODES);
 	printRoutingTable(node2,NODES);
 	printf("\n");
+	convergence_count=Max(conCount,NODES);
 	printf("Least Cost Distance from Node %d to Node %d is %6.2f" , node1+1 , node2+1, distVector[node1][node2]);
 	printf("\nNum nodes : %d ; Initial Node : %d ;The number of iterations taken to converge = %d\n" ,NODES,node1+1, convergence_count);
 
