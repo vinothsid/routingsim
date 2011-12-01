@@ -423,20 +423,20 @@ void main(int argc, char** argv){
 //	init(numNodes);
 //	numNodes = atoi(argv[1]);
 	source  = atoi(argv[1]) -1 ;
-
+	int numAdjNodes=0;
 	char *fileName = argv[2];
-
+	numAdjNodes = atoi( argv[3] );
 	readIt(fileName);
 	printf("Number of nodes : %d . Source node is : %d \n",numNodes,source);
 
 	//Read adjacent node's ip addresses
         int i=0;
-	for(i=0;i<numNodes-1;i++) {
-		strcpy(ip[i],argv[3+i]);
+	for(i=0;i<numAdjNodes;i++) {
+		strcpy(ip[i],argv[4+i]);
 	}
 
 	printf("Adjacent ip addresses : ");
-	for(i=0;i<numNodes-1;i++) {
+	for(i=0;i<numAdjNodes;i++) {
 		printf(" %s" , ip[i]);
 	}
 	
