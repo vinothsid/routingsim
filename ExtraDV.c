@@ -192,8 +192,8 @@ int udpRecv(float *f)
         exit(1);
     }
 
-    //printf("listener: got packet from %s\n",inet_ntop(their_addr.ss_family,get_in_addr((struct sockaddr *)&their_addr),s, sizeof s));
-    //printf("listener: packet is %d bytes long\n", numbytes);
+    printf("listener: got packet from %s\n",inet_ntop(their_addr.ss_family,get_in_addr((struct sockaddr *)&their_addr),s, sizeof s));
+    printf("listener: packet is %d bytes long\n", numbytes);
     buf[numbytes] = '\0';
     printf("Received: source [distance vectors]  : \"%s\"\n", buf);
 
@@ -411,7 +411,7 @@ void initForwTable(int n) {
 
 void main(int argc, char** argv){
 	pthread_t senderThread, receiverThread;
-	char ip[10][20];
+	char ip[200]="";
 	//char *ip = "192.168.15.7 192.168.15.11 192.168.15.21";
 	int iret1,iret2;
 	//printf("Hi the IP to contact is %s",argv[1]);
@@ -431,15 +431,18 @@ void main(int argc, char** argv){
 
 	//Read adjacent node's ip addresses
         int i=0;
-	for(i=0;i<numAdjNodes;i++) {
-		strcpy(ip[i],argv[4+i]);
+	strcat(ip,argv[4]);
+	for(i=1;i<numAdjNodes;i++) {
+		strcat(ip," ");
+		strcat(ip,argv[4+i]);
 	}
 
-	printf("Adjacent ip addresses : ");
-	for(i=0;i<numAdjNodes;i++) {
-		printf(" %s" , ip[i]);
-	}
-	
+	printf("Adjacent ip addresses :");
+//	for(i=0;i<numAdjNodes;i++) {
+		printf(" %s" , ip);
+//	}
+
+	printf("\n");	
         for(i=0;i<numNodes;i++) {
                 distVector[i] = tempDistVector[source][i];
 		if (source==i) {
