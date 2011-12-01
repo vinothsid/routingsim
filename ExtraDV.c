@@ -31,7 +31,7 @@ void *get_in_addr(struct sockaddr *sa)
 }
 int printVector(float *f,int n) {
 	int i=0;
-	printf("Printing vector\n");
+	//printf("Printing vector\n");
 	for(i=0;i<n;i++) {
 		printf(" %f ",f[i]);
 	}
@@ -40,13 +40,16 @@ int printVector(float *f,int n) {
 }
 int printForwTable(int n) {
 	int i=0;
-	printf("Printing forward table\n");
-
+	printf("*************************************\n");
+	printf("*           Forwarding table        * \n");
+	printf("*************************************\n");
+	printf("To\t NextHop \t Cost\n");
 	for(i=0;i<n;i++) {
 		if(i!=source)
-			printf(" %d ",forwTable[i] + 1 );
+			printf("%d %10d %16f \n",i+1,forwTable[i] + 1,distVector[i] );
 		else
-			printf(" %d " , forwTable[i]);
+			printf("%d %10d %16f \n",i+1,forwTable[i],distVector[i] );
+			//printf(" %d " , forwTable[i]);
 	}
 	printf("\n");
 	return 1;
@@ -126,8 +129,10 @@ void *server() {
 		src= udpRecv(tmpDV);
 //		printVector(tmpDV,numNodes);
 		computeRouteDV(src,numNodes,tmpDV);
-		printf("Distance Vector :\n");
-		printVector(distVector,numNodes);
+		//printf("*************************************\n");
+		//printf("*           Distance Vector         * \n");
+		//printf("*************************************\n");
+		//printVector(distVector,numNodes);
 
 		
 		printForwTable(numNodes);
@@ -179,7 +184,7 @@ int udpRecv(float *f)
 
     freeaddrinfo(servinfo);
 
-    printf("listener: waiting to recvfrom...\n");
+    //printf("listener: waiting to recvfrom...\n");
 
     addr_len = sizeof their_addr;
     if ((numbytes = recvfrom(sockfd, buf, MAXBUFLEN-1 , 0,(struct sockaddr *)&their_addr, &addr_len)) == -1) {
@@ -187,15 +192,15 @@ int udpRecv(float *f)
         exit(1);
     }
 
-    printf("listener: got packet from %s\n",inet_ntop(their_addr.ss_family,get_in_addr((struct sockaddr *)&their_addr),s, sizeof s));
-    printf("listener: packet is %d bytes long\n", numbytes);
+    //printf("listener: got packet from %s\n",inet_ntop(their_addr.ss_family,get_in_addr((struct sockaddr *)&their_addr),s, sizeof s));
+    //printf("listener: packet is %d bytes long\n", numbytes);
     buf[numbytes] = '\0';
-    printf("listener: packet contains \"%s\"\n", buf);
+    printf("Received: source [distance vectors]  : \"%s\"\n", buf);
 
    // float *tmpDv=(float *)malloc(sizeof(float) * numNodes);
     int src;
     src = decode( buf ,f,numNodes );
-    printf("Source received is : %d \n",src);
+    printf("Received from : %d \n",src);
     //printVector(tmpDv,numNodes); 
     close(sockfd);
 
@@ -248,8 +253,8 @@ void client(char *addr)
     }
 
     freeaddrinfo(servinfo);
-    printf("talker: sent %d bytes to %s\n", numbytes, addr);
-    printf("talker: Data %s\n",str);
+    //printf("talker: sent %d bytes to %s\n", numbytes, addr);
+    //printf("talker: Data %s\n",str);
     free(str);
     close(sockfd);
 
@@ -280,7 +285,7 @@ int decode( char *str,float *dv,int n ) {
 	char *tmp;
 	tmp=strtok(str," ");
 	int nodeNum =atoi(tmp);
-	printf("Number of nodes : %d \n",numNodes);
+	//printf("Number of nodes : %d \n",numNodes);
 	int i=0;
 	for(i=0;i<n;i++) {
 		tmp=strtok(NULL," ");
@@ -341,8 +346,8 @@ int computeRouteDV ( int src,int n,float *tmpDV ) {
 	/*	
                 }
 */
-		printf("Printing received vector:\n");
-		printVector(tmpDV,n);
+		//printf("Printing received vector:\n");
+		//printVector(tmpDV,n);
 		pthread_mutex_lock(&dvMutex);
 		for(i=0; i<n; i++ ) { 
 				if(tmpDV[i]!=-1 && ( distVector[i] == -1 ||  (tmpDV[i]+d ) < distVector[i]) ) {
@@ -442,7 +447,7 @@ void main(int argc, char** argv){
 		}
         }
 
-	printVector(distVector,numNodes);
+	//printVector(distVector,numNodes);
 
 	initForwTable(numNodes);
 	iret1 = pthread_create( &senderThread, NULL, clientFunc,(void *) ip);
